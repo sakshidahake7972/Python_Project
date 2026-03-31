@@ -1,65 +1,70 @@
-
-appliances = {
-    "Refrigerator": (230, 115),
-    "Washing Machine": (230, 50),
-    "Air Conditioner": (230, 30),
-    "Television": (230, 460),
-    "Fan": (230, 800)
-}
-
 POWER_LIMIT = 1000
 
-print("SMART HOME ENERGY CONSUMPTION REPORT")
-print("=====================================\n")
+def calculate(voltage, resistance):
+    if resistance == 0:
+        return None, None
+    current = voltage / resistance
+    power = voltage * current
+    return current, power
 
 
-with open("Daily_Consumption_Report.txt", "w") as report:
+def main():
+    print("SMART HOME ENERGY CONSUMPTION MONITOR\n")
 
-    report.write("SMART HOME ENERGY CONSUMPTION REPORT\n")
-    report.write("=====================================\n\n")
+    n = int(input("Enter number of appliances: "))
 
-    for appliance in appliances:
+    appliances = {}
 
-        V = appliances[appliance][0]
-        R = appliances[appliance][1]
+    # Taking input from user
+    for i in range(n):
+        print(f"\nEnter details for Appliance {i+1}")
+        name = input("Appliance Name: ")
+        voltage = float(input("Voltage (V): "))
+        resistance = float(input("Resistance (Ohms): "))
+        appliances[name] = (voltage, resistance)
 
+    # Create report file
+    with open("Daily_Consumption_Report.txt", "w") as file:
 
-        if R == 0:
-            print(f"{appliance}: Invalid resistance value!")
-            continue
+        file.write("SMART HOME ENERGY CONSUMPTION REPORT\n\n")
 
-        #current formula
-        current = V / R
+        # Process each appliance
+        for name, (voltage, resistance) in appliances.items():
 
-        # Power Formula
-        power = V * current
+            current, power = calculate(voltage, resistance)
 
+            if current is None:
+                print(f"{name}: Invalid resistance value!\n")
+                continue
 
-        print("Appliance:", appliance)
-        print("Current: {:.2f} A".format(current))
-        print("Power: {:.2f} W".format(power))
+            # Display output
+            print(f"\nAppliance: {name}")
+            print(f"Current: {current:.2f} A")
+            print(f"Power: {power:.2f} W")
 
+            # Write to file
+            file.write(f"Appliance: {name}\n")
+            file.write(f"Voltage: {voltage} V\n")
+            file.write(f"Resistance: {resistance} Ohms\n")
+            file.write(f"Current: {current:.2f} A\n")
+            file.write(f"Power: {power:.2f} W\n")
 
-        report.write("Appliance: " + appliance + "\n")
-        report.write("Voltage: " + str(V) + " V\n")
-        report.write("Resistance: " + str(R) + " Ohms\n")
-        report.write("Current: {:.2f} A\n".format(current))
-        report.write("Power: {:.2f} W\n".format(power))
+            # Control flow (checking power)
+            if power > POWER_LIMIT:
+                msg = "High Power Consumption! Reduce usage."
+            else:
+                msg = "Power consumption is normal."
 
+            print(msg)
+            file.write(msg + "\n\n")
 
-        if power > POWER_LIMIT:
-            print("High Power Consumption! Reduce usage.\n")
-            report.write("High Power Consumption! Reduce usage.\n\n")
-        else:
-            print("Power consumption is normal.\n")
-            report.write("Power consumption is normal.\n\n")
+        # Suggestions
+        file.write("ENERGY SAVING SUGGESTIONS\n")
+        file.write("1. Turn off appliances when not in use.\n")
+        file.write("2. Use energy-efficient appliances.\n")
+        file.write("3. Avoid using multiple high-power devices together.\n")
+        file.write("4. Regular maintenance improves efficiency.\n")
 
-
-    report.write("ENERGY SAVING SUGGESTIONS\n")
-    report.write("--------------------------\n")
-    report.write("1. Turn off appliances when not in use.\n")
-    report.write("2. Use energy-efficient appliances.\n")
-    report.write("3. Avoid using multiple high-power devices together.\n")
-    report.write("4. Regular maintenance improves efficiency.\n")
-
-print("Report file created successfully!")
+    print("\nReport file created successfully!")
+#Run Program
+main()
